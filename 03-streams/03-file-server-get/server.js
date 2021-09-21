@@ -39,14 +39,6 @@ server.on('request', (req, res) => {
         res.end();
       });
 
-      readStream.on('data', chunk => console.log('chunk', chunk));
-
-      readStream.on('open', () => console.log('open stream'));
-
-      readStream.on('close', () => console.log('close stream'));
-
-      readStream.on('end', () => console.log('end stream'));
-
       readStream.pipe(res);
 
       break;
