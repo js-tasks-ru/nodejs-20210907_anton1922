@@ -1,6 +1,7 @@
 const url = require('url');
 const http = require('http');
 const path = require('path');
+const fs = require('fs');
 
 const server = new http.Server();
 
@@ -12,6 +13,41 @@ server.on('request', (req, res) => {
 
   switch (req.method) {
     case 'GET':
+      if (pathname.includes('/')) {
+        res.statusCode = 400;
+
+        res.end('Bad request!');
+
+        break;
+      }
+
+      const readStream = fs.createReadStream(filepath, {
+        encoding: 'utf8',
+      });
+
+      readStream.on('error', err => {
+        console.log('err', err);
+
+        if(err.code === 'ENOENT') {
+          res.statusCode = 404;
+          res.statusMessage = 'File not found!';
+        } else {
+          res.statusCode = 500;
+          res.statusMessage = 'Internal server error!';
+        }
+        
+        res.end();
+      });
+
+      readStream.on('data', chunk => console.log('chunk', chunk));
+
+      readStream.on('open', () => console.log('open stream'));
+
+      readStream.on('close', () => console.log('close stream'));
+
+      readStream.on('end', () => console.log('end stream'));
+
+      readStream.pipe(res);
 
       break;
 
@@ -22,3 +58,4 @@ server.on('request', (req, res) => {
 });
 
 module.exports = server;
+
