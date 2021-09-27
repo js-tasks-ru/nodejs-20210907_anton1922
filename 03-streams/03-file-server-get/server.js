@@ -21,9 +21,7 @@ server.on('request', (req, res) => {
         break;
       }
 
-      const readStream = fs.createReadStream(filepath, {
-        encoding: 'utf8',
-      });
+      const readStream = fs.createReadStream(filepath);
 
       readStream.on('error', err => {
         console.log('err', err);
