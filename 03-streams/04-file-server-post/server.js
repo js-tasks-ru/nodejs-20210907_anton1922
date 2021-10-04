@@ -24,7 +24,7 @@ server.on('request', (req, res) => {
 
       const limitSizeStream = new LimitSizeStream(
         { 
-          limit: 1e6, 
+          limit: 1000000, 
           readableObjectMode: false,
         }
       );
@@ -37,18 +37,17 @@ server.on('request', (req, res) => {
 
       limitSizeStream.on('error', err => {
         if (err.code === 'LIMIT_EXCEEDED') {
-          console.log('LIMIT_EXCEEDED');
           res.statusCode = 413;
-          res.statusMessage = 'File more than 1Mb';   
+          res.statusMessage = 'File more than 1Mb';
         } else {
           res.statusCode = 500;
           res.statusMessage = 'Internal server error';
         }
-        res.end();
 
+        res.end()
         writeStream.destroy();
 
-        fs.unlink(filepath, err => {}); 
+        fs.unlink(filepath, err => {});
       });
 
       writeStream.on('error', err => {
@@ -76,6 +75,8 @@ server.on('request', (req, res) => {
 
         fs.unlink(filepath, err => {});
       });
+
+      req.on('error', err => {});
 
       break;
     default:
