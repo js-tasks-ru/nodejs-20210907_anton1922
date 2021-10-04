@@ -36,31 +36,22 @@ server.on('request', (req, res) => {
       req.pipe(limitSizeStream).pipe(writeStream);
 
       limitSizeStream.on('error', err => {
-        console.log('limitSizeStream err', err.message);
-
         if (err.code === 'LIMIT_EXCEEDED') {
           console.log('LIMIT_EXCEEDED');
           res.statusCode = 413;
-          res.statusMessage = 'File more than 1Mb';
-
-          writeStream.end(() => {
-            fs.unlink(filepath, err => {
-              if (err) {
-                throw err;
-              }
-            });
-          });          
+          res.statusMessage = 'File more than 1Mb';   
         } else {
           res.statusCode = 500;
           res.statusMessage = 'Internal server error';
         }
-
         res.end();
+
+        writeStream.destroy();
+
+        fs.unlink(filepath, err => {}); 
       });
 
       writeStream.on('error', err => {
-        console.log('writeStream err', err.message);
-
         if (err.code === 'EEXIST') {
           res.statusCode = 409;
           res.statusMessage = 'File is exist';
@@ -79,23 +70,11 @@ server.on('request', (req, res) => {
         res.end();
       });
 
-      req.on('error', err => {
-        console.log('req err', err.message);
-        if (err.code === 'ECONNRESET' || 'ECONNABORTED') {
+      req.on('aborted', () => {
+        limitSizeStream.destroy();
+        writeStream.destroy();
 
-          writeStream.end(() => {
-            fs.unlink(filepath, err => {
-              if (err) {
-                throw err;
-              }
-            });
-          });
-        } else {
-          res.statusCode = 500;
-          res.statusMessage = 'Internal server error';
-
-          res.end();
-        }
+        fs.unlink(filepath, err => {});
       });
 
       break;
