@@ -44,7 +44,7 @@ server.on('request', (req, res) => {
           res.statusMessage = 'Internal server error';
         }
 
-        res.end()
+        res.end('too big');
         writeStream.destroy();
 
         fs.unlink(filepath, err => {});
