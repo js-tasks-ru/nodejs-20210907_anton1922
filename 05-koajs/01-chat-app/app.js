@@ -8,31 +8,29 @@ app.use(require('koa-bodyparser')());
 const Router = require('koa-router');
 const router = new Router();
 
-let subscribers = {};
+let subscribers = [];
 
 const sendMessage = (message) => {
 	if (!message) return;
 
-	Object.values(subscribers).map(subscriber => {
+	subscribers.map(subscriber => {
 		subscriber(message);
 	});
 
-	subscribers = {};
+	subscribers = [];
 };
 
 router.get('/subscribe', async (ctx, next) => {
 	try {
 		const id = ctx.originalUrl.split('=')[1];
 
-		const message = await new Promise(resolve => {
-			subscribers[id] = resolve;
+		ctx.body = await new Promise(resolve => {
+			subscribers.push(resolve);
 		});
-
-		ctx.body = message;
 	} catch(err) {
-		console.log(err);
+		console.log('err', err);
 
-		delete subscribers[id];
+		ctx.throw(500);
 	}
 });
 
@@ -44,7 +42,8 @@ router.post('/publish', async (ctx, next) => {
 
 		ctx.body = 'success';
 	} catch(err) {
-		console.log(err);
+		console.log('err post', err);
+		ctx.throw(500);
 	}
 });
 
