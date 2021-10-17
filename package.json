@@ -38,6 +38,7 @@
     "lodash": "^4.17.11",
     "mongoose": "^5.10.0",
     "mongoose-beautiful-unique-validation": "^7.1.1",
+    "nodaemon": "0.0.5",
     "nodemailer": "^6.1.1",
     "nodemailer-html-to-text": "^3.0.0",
     "nodemailer-smtp-transport": "^2.4.2",
